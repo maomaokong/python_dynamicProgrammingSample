@@ -21,86 +21,83 @@ Answer  =   B   C   B   A
 
 import numpy as np
 
-x = 'ABCBDAB'
-y = 'BDCABA'
 
-string1 = x.rjust(len(x)+1)
-string2 = y.rjust(len(y)+1)
+def main():
+    x = 'ABCBDAB'
+    y = 'BDCABA'
 
-if len(string1) < len(string2):
-    tmpString = string2
-    string2 = string1
-    string1 = tmpString
+    string1 = x.rjust(len(x)+1)
+    string2 = y.rjust(len(y)+1)
 
-arrayI = list(string1)
-#arrayI = np.fromstring(string1, sep='')
-arrayJ = list(string2)
-#arrayJ = np.fromstring(string2, sep='')
+    if len(string1) < len(string2):
+        tmp_string = string2
+        string2 = string1
+        string1 = tmp_string
 
-# Create empty 2d Array
-arrayIJ = np.zeros(shape=(len(string1), len(string2)))
+    array_i = list(string1)
+    array_j = list(string2)
 
-#print(arrayIJ)
+    # Create empty 2d Array
+    array_ij = np.zeros(shape=(len(string1), len(string2)))
 
-for positionM, itemM in enumerate(arrayI):
-    for positionN, itemN in enumerate(arrayJ):
-        if itemM == ' ' or itemN == ' ':
-
-            arrayIJ[positionM, positionN] = 0
-
-            #print("{0}, {1}, set=0".format(itemM, itemN))
-        else:
-            if itemM != itemN:
-                upper_arrayIJ_value  = arrayIJ[positionM-1, positionN]
-                left_arrayIJ_value = arrayIJ[positionM, positionN-1]
-
-                arrayIJ[positionM, positionN] = max(upper_arrayIJ_value, left_arrayIJ_value)
-
-                #print("{0}, {1}, set={2}".format(itemM, itemN, arrayIJ[positionM, positionN]))
+    for positionM, itemM in enumerate(array_i):
+        for positionN, itemN in enumerate(array_j):
+            if itemM == ' ' or itemN == ' ':
+                array_ij[positionM, positionN] = 0
             else:
-                upper_arrayIJ_value  = arrayIJ[positionM-1, positionN]
-                left_arrayIJ_value = arrayIJ[positionM, positionN-1]
-                upper_left_arrayIJ_value = arrayIJ[positionM-1, positionN-1]
+                if itemM != itemN:
+                    upper_array_ij_value  = array_ij[positionM-1, positionN]
+                    left_array_ij_value = array_ij[positionM, positionN-1]
 
-                arrayIJ[positionM, positionN] = max(upper_arrayIJ_value, left_arrayIJ_value, (upper_left_arrayIJ_value+1))
+                    array_ij[positionM, positionN] = max(upper_array_ij_value, left_array_ij_value)
+                else:
+                    upper_array_ij_value  = array_ij[positionM-1, positionN]
+                    left_array_ij_value = array_ij[positionM, positionN-1]
+                    upper_left_array_ij_value = array_ij[positionM-1, positionN-1]
 
-                #print("{0}, {1}, set={2}".format(itemM, itemN, arrayIJ[positionM, positionN]))
+                    array_ij[positionM, positionN] = max(upper_array_ij_value
+                                                         , left_array_ij_value
+                                                         , (upper_left_array_ij_value+1)
+                                                         )
 
-#print(arrayIJ)
+    # Getting Subsequence
+    common_subseq_i = ''
+    common_subseq_j = ''
 
-## Getting Subsequence
-common_subseqI = ''
-common_subseqJ = ''
+    max_array_i_position = len(array_i)
+    max_array_j_position = len(array_j)
+    new_position_array_j = max_array_j_position
 
-max_arrayI_position = len(arrayI)
-max_arrayJ_position = len(arrayJ)
-new_position_arrayJ = max_arrayJ_position
+    for position_arrayI in range(max_array_i_position, 1, -1):
+        continue_left = True
 
-for position_arrayI in range(max_arrayI_position, 1, -1):
-    continue_left = True
+        if continue_left:
+            for position_arrayJ in range(max_array_j_position, 1, -1):
+                if position_arrayJ <= new_position_array_j:
+                    # 1.  Get current 2d array value
+                    current_array_ij_value = array_ij[position_arrayI - 1, position_arrayJ - 1]
+                    left_array_ij_value = array_ij[position_arrayI - 1, position_arrayJ - 2]
+                    upper_array_ij_value = array_ij[position_arrayI - 2, position_arrayJ - 1]
 
-    if continue_left:
-        for position_arrayJ in range(max_arrayJ_position, 1, -1):
-            if position_arrayJ <= new_position_arrayJ:
-                #1.  Get current 2d array value
-                current_arrayIJ_value = arrayIJ[position_arrayI - 1, position_arrayJ - 1]
-                left_arrayIJ_value = arrayIJ[position_arrayI - 1, position_arrayJ - 2]
-                upper_arrayIJ_value = arrayIJ[position_arrayI - 2, position_arrayJ - 1]
+                    # 2.  Compare bottom right element with his left element
+                    if (current_array_ij_value != left_array_ij_value) \
+                            and (current_array_ij_value != upper_array_ij_value):
+                        common_subseq_i = ''.join((array_i[position_arrayI-1], common_subseq_i))
+                        common_subseq_j = ''.join((array_j[position_arrayJ-1], common_subseq_j))
 
-                # 2.  Compare bottom right element with his left element
-                if (current_arrayIJ_value != left_arrayIJ_value) and (current_arrayIJ_value != upper_arrayIJ_value):
-                    common_subseqI = ''.join((arrayI[position_arrayI-1], common_subseqJ))
-                    common_subseqJ = ''.join((arrayJ[position_arrayJ-1], common_subseqJ))
+                        # Get arrayJ Position
+                        new_position_array_j = position_arrayJ
 
-                    #Get arrayJ Position
-                    new_position_arrayJ = position_arrayJ
+                        print("currentI: {0}, currentJ: {1}, cell_value: {2}, common_subseqI: {3}"
+                              .format(position_arrayI-1, position_arrayJ-1, current_array_ij_value, common_subseq_i))
 
-                    print("currentI: {0}, currentJ: {1}, cell_value: {2}, common_subseqI: {3}"
-                          .format(position_arrayI-1, position_arrayJ-1, current_arrayIJ_value, common_subseqI))
+                        continue_left = False
+                        break
 
-                    continue_left = False
-                    break
+    print(common_subseq_i)
+    print()
+    print(common_subseq_j)
 
-print(common_subseqI)
-print()
-print(common_subseqJ)
+
+if __name__ == '__main__':
+    main()
